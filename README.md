@@ -6,6 +6,7 @@
 - libcurl
 - iniparser
 - libevent
+- mysql-dev
 
 ### 目录结构
 
@@ -46,6 +47,25 @@ thread_max_size     = 150; #线程数量最大值
 queue_max_list      = 65535; #队列最大长度
 thread_add_prec     = 0.01; #增长因子
 thread_mointer_interval    = 5; #进程管理监管间隔
+```
+
+testdb.books表
+
+```sql
+CREATE TABLE `books` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) DEFAULT NULL,
+  `dou_book_id` int(11) DEFAULT '0',
+  `comments_url` char(100) DEFAULT NULL COMMENT 'all comments url',
+  `detail_url` char(255) DEFAULT NULL COMMENT '内容链接 ',
+  `indestury` char(50) DEFAULT NULL,
+  `abstract` varchar(255) DEFAULT NULL,
+  `created_at` int(11) DEFAULT '0',
+  `updated_at` int(11) DEFAULT '0',
+  `created_by` int(11) DEFAULT '0',
+  `updated_by` int(11) DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 ```
 
 ### 如何运行
