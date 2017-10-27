@@ -2,7 +2,7 @@
 每隔1小时抓取https://book.douban.com 热门书籍，保存到本地数据库。
 
 
-### 需要第三方库文件
+### 需要安装的库文件
 - libcurl
 - iniparser
 - libevent
