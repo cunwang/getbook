@@ -29,7 +29,6 @@ void init_string(struct string *s)
 {
 	s->len = 0;
 	s->ptr = malloc(s->len+1);
-
 	if (s->ptr == NULL) {
 		EXIT_TRAP();
 	}
@@ -54,9 +53,9 @@ size_t writefunc(void *ptr, size_t size, size_t nmemb, struct string *s)
 /**
  * @abstract 返回HTML
  * @usage:
- *	> char *ss = getHtml(url);
+ *	> char *ss = get_html(url);
  */
-char * getHtml(char * url)
+char * get_html(char * url)
 {
 	CURL *curl;
 	struct string s;
@@ -116,18 +115,13 @@ void init_deamon()
 {
 	int i,MAXFILE_S;
 	pid_t pid,sid;	
-
 	umask(0);
 	pid=fork();
-	
 	if (pid < 0) {
-		write2log("pid < 0");
 		EXIT_TRAP();
 	} else if(pid > 0) {
-		write2log("Error fork parent exit");
 		EXIT_OK();	
 	}
-	
 	MAXFILE_S = getdtablesize();
 	for(i=0;i<MAXFILE_S;i++) {
 		close(i);	

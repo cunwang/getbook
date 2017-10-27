@@ -26,7 +26,7 @@ extern int m_get_num(char * sql, MYSQL * con);
 extern char *sub_string(char *str, int start, int end);
 extern void init_string(struct string *s);
 extern size_t writefunc(void *ptr, size_t size, size_t nmemb, struct string *s);
-extern char * getHtml(char * url);
+extern char * get_html(char * url);
 extern int is_run(const char *filename);
 extern int lockfile(int fd);
 
@@ -37,31 +37,26 @@ extern int lockfile(int fd);
 void * douban_process(Books * book)
 {
 	if (NULL == book) return NULL;
-
 	MYSQL *conn;
 	char sql[350], logstr[150];
 	time_t t;
-	t=time(0);
+	t	= time(0);
 
 	pthread_mutex_lock(&book->lock);
 	conn	= m_conn();
-
 	if (NULL != book) {
 		sprintf(sql, "select id from books where dou_book_id=%d", book->id);
 		int nums= m_get_num(sql, conn);
-		sprintf(logstr, "%s\t%d", sql, nums);
-		write2log(logstr);
 		if (nums < 1) {
 			sprintf(logstr, "find new book: %s\n", book->name);
 			write2log(logstr);
 			sprintf(sql, "insert into books(name,dou_book_id,detail_url,comments_url,abstract,created_at, created_by, updated_at) Values('%s',%d,'%s','%s','%s',%d,%d,%d)", book->name, book->id, book->url, book->comments_url, book->abstract, t, 1, t);
-			write2log(sql);
 			m_query(sql, conn);
 		}
 	}
-
 	pthread_mutex_unlock(&book->lock);
 	m_close(conn);
+
    	return NULL;
 }
 
@@ -69,7 +64,7 @@ void * douban_process(Books * book)
 /**
  * 正则
  */
-int getAllHref(char * html)
+int get_all_href(char * html)
 {
 	Books * book;
 	char * tmp;
@@ -82,7 +77,6 @@ int getAllHref(char * html)
 	if (regcomp(&preg, pattern, REG_EXTENDED | REG_NEWLINE) != 0) {
 		return -1;
 	}
-
 	st = file;
 	while (st && regexec(&preg, st, 6, pm, REG_NOTEOL) != REG_NOMATCH) {
 		book				= malloc(sizeof(Books));
@@ -125,7 +119,7 @@ struct settings * init_setting()
 	tmp->thread_max_size	= iniparser_getint(ini_config, "thread:thread_max_size", -1);
 	tmp->queue_max_list		= iniparser_getint(ini_config, "thread:queue_max_list", -1);
 	tmp->thread_add_cond	= iniparser_getint(ini_config, "thread:thread_add_cond", -1);
-	//printf("%d\t%d\t%d\t%d\n", tmp->thread_min_size, tmp->thread_max_size, tmp->queue_max_list, tmp->thread_add_cond);
+
 	return tmp;
 }
 
@@ -144,7 +138,7 @@ char * load_base(dictionary * config)
 /**
  * event callback function
  */
-void onTime(int sock, short event, void *arg)
+void on_time(int sock, short event, void *arg)
 {
 	const char * tmp_str;
 	char tmp[100];
@@ -156,7 +150,7 @@ void onTime(int sock, short event, void *arg)
 	main_url	= tmp;
 
 	write2log("di da");
-	getAllHref(getHtml(main_url));
+	get_all_href(get_html(main_url));
 
 	/**
  	 * trigger event again
@@ -190,13 +184,12 @@ void init()
  	 */
 	event_init();
 	struct event ev_time;
-	evtimer_set(&ev_time, onTime, &ev_time);
+	evtimer_set(&ev_time, on_time, &ev_time);
 	struct timeval tv;
     tv.tv_sec = interval;
     tv.tv_usec = 0;
     event_add(&ev_time, &tv);
     event_dispatch();
-
 	mysql_library_end();
 }
 
@@ -206,7 +199,6 @@ int main(void)
 	if (is_run(LOCKFILE_PATH)) {
 		return 0;
 	} else {
-		write2log("int main will init!\n");
 		init();
 	}
 
